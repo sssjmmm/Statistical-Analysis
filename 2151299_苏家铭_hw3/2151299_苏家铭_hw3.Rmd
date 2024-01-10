@@ -1,0 +1,109 @@
+---
+title: "2151299_苏家铭_hw3"
+author: "苏家铭"
+documentclass: ctexart
+output:
+  word_document:
+    toc: yes
+  html_notebook: default
+  rticles::ctex:
+    fig_caption: yes
+    number_sections: yes
+    toc: yes
+  pdf_document: default
+geometry: left=2.5cm,right=2cm,top=3cm,bottom=2.5cm
+classoption: hyperref,
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+# 导入数据
+music_data <- read.csv("music_data.csv")
+
+# 查看数据结构和基本统计信息
+str(music_data)
+summary(music_data)
+```
+```{r}
+# 查看分组信息
+no_music <- music_data[music_data$condition == "no_music",][["productivity"]]
+music_no_choice <- music_data[music_data$condition == "music_no_choice", ][["productivity"]]
+music_choice <- music_data[music_data$condition == "music_choice", ][["productivity"]]
+print("no_music:")
+summary(no_music)
+print("music_no_choice")
+summary(music_no_choice)
+print("music_choice")
+summary(music_choice)
+```
+
+```{r}
+# 分组绘制直方图
+hist(music_choice, freq = F, breaks = 4, main = "music_choice",col="lightyellow")
+```
+```{r}
+hist(music_no_choice, freq = F, breaks = 4, main = "music_no_choice",col="lightyellow")
+```
+
+```{r}
+hist(no_music, freq = F, breaks = 4, main = "no_music",col="lightyellow")
+```
+
+```{r}
+# 进行方差分析
+anova_result <- aov(productivity ~ condition, data = music_data)
+
+# 查看方差分析结果
+summary(anova_result)
+
+# 组别之间的差异： 通过 p 值（Pr(>F)），我们拒绝了零假设，即至少一个组别的均值与其他组别不同。因此，我们有理由相信，不同的音乐条件（condition）对生产力产生了显著影响。
+
+# F 统计量： F 统计量（9.291）表示组间均值方差与组内均值方差的比例。由于 p 值非常小，我们可以得出结论，在组别之间存在显著差异。
+```
+
+```{r}
+
+# 进行 Tukey HSD 测试
+tukey_result <- TukeyHSD(anova_result)
+
+# 查看比较结果
+print(tukey_result)
+
+# music_no_choice vs. music_choice:
+
+#差异 (diff): -25.82
+# 置信区间 (95% family-wise confidence level): [-43.10, -8.54]
+#调整过的 p 值 (p adj): 0.00155
+#结论：music_no_choice 组的平均生产力明显低于 music_choice 组，差异具有统计学显著性。
+
+#no_music vs. music_choice:
+
+#差异 (diff): -28.47
+#置信区间: [-45.74, -11.19]
+#调整过的 p 值: 0.00042
+#结论：no_music 组的平均生产力明显低于 music_choice 组，差异具有统计学显著性。
+
+#no_music vs. music_no_choice:
+
+#差异 (diff): -2.65
+#置信区间: [-19.92, 14.63]
+#调整过的 p 值: 0.93013
+#结论：no_music 组和 music_no_choice 组之间的平均生产力差异不具有统计学显著性。
+
+#结论和建议：
+
+#在音乐条件方面，music_choice 组表现出最高的生产力，明显高于其他两组。
+#music_no_choice 组的生产力也明显高于 no_music 组，两者之间差异显著。
+#no_music 组和 music_no_choice 组之间的生产力差异不显著。
+#这些结论有助于理解不同音乐条件对员工生产力的影响。建议在提高生产力的同时，也考虑员工对音乐的个人选择，因为提供音乐选择的条件可能会更有利于工作效率。
+```
+
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
